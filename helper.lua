@@ -29,4 +29,11 @@ function R.vectortomultivector(vector)
   return sigma_1 * vector:getelement(1,1) + sigma_2 * vector:getelement(2,1) + sigma_3 * vector:getelement(3,1);
 end
 
+function R.multivectortovector(multivector)
+  a,_ = ((multivector:getelement(1,2)+multivector:getelement(2,1))/2):get()
+  _,b = ((multivector:getelement(2,1)-multivector:getelement(1,2))/2):get()
+  c,_ = ((multivector:getelement(1,1)-multivector:getelement(2,2))/2):get()
+  return matrix{a,b,c}
+end
+
 return R
