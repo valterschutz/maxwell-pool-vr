@@ -10,7 +10,6 @@ function lovr.load()
   ORBITAL_PERIOD = 5
 
   f = ElectricCharge:new(matrix{0,0,0}, matrix{0,0,0}, matrix{0,0,0}, 1)
-
   p = Particle:new(matrix{ORBITAL_RADIUS,0,0}, matrix{0,0.2,0},matrix{0,0,0}, 1)
 
   t = 0
@@ -23,13 +22,12 @@ function lovr.draw()
   lovr.graphics.setColor(0,0,0)
   lovr.graphics.cube("line",0,0,0,1)
 
-  -- Draw sun
+  -- Draw field object
   lovr.graphics.setColor(1,0,0)
   lovr.graphics.sphere(f.position:getelement(1,1), f.position:getelement(2,1), f.position:getelement(3,1), f.radius)
 
-  -- Draw planet
+  -- Draw particle
   lovr.graphics.setColor(0,0,1)
-  -- lovr.graphics.sphere(planet.position, planet.radius)
   lovr.graphics.sphere(p.position:getelement(1,1), p.position:getelement(2,1), p.position:getelement(3,1), p.radius)
 end
 
@@ -38,7 +36,6 @@ function lovr.update(dt)
 
   p:update(dt)
   f:update(dt)
-
 end
 
 
