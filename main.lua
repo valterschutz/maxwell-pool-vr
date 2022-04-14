@@ -1,31 +1,18 @@
+local complex = require "complex"
+local matrix = require "matrix"
+local ElectricCharge = require "fieldobj"
+local Particle = require "particle"
+
 function lovr.load()
-  SUN_RADIUS = 0.02
-  PLANET_RADIUS = 0.01
   WALL_THICKNESS = 0.01
-  PLANET_MASS = 1
   ORBITAL_RADIUS = 0.3
   ORBITAL_PERIOD = 5
-  G = 1
 
-  sun = {}
-  sun.position = {0,0,0}
-  setmetatable(sun.position, metavector)
-  sun.velocity = {0,0,0}
-  setmetatable(sun.velocity, metavector)
-  sun.radius = SUN_RADIUS
-  sun.mass = 4*math.pi^2*ORBITAL_RADIUS^3/(ORBITAL_PERIOD^2*G)
+  f = ElectricCharge:new(matrix{0,0,0}, matrix{0,0,0}, matrix{0,0,0}, 1)
 
-  planet = {}
-  planet.position = {ORBITAL_RADIUS,0,0}
-  setmetatable(planet.position, metavector)
-  planet.velocity = {0,-2*math.pi*ORBITAL_RADIUS/ORBITAL_PERIOD,0}
-  setmetatable(planet.velocity, metavector)
-  planet.radius = PLANET_RADIUS
-  planet.mass = PLANET_MASS
+  p = Particle:new(matrix{ORBITAL_RADIUS,0,0}, matrix{0,0,0},matrix{0.1,0,0}, 1)
 
   t = 0
-
-  -- lovr.graphics.setBlendMode("add","alphamultiply")
 end
 
 function lovr.draw()
@@ -37,21 +24,19 @@ function lovr.draw()
 
   -- Draw sun
   lovr.graphics.setColor(1,0,0)
-  lovr.graphics.sphere(sun.position[1], sun.position[2], sun.position[3], sun.radius)
+  lovr.graphics.sphere(f.position[1], f.position[2], f.position[3], f.radius)
 
   -- Draw planet
   lovr.graphics.setColor(0,0,1)
   -- lovr.graphics.sphere(planet.position, planet.radius)
-  lovr.graphics.sphere(planet.position[1], planet.position[2], planet.position[3],planet.radius)
+  lovr.graphics.sphere(p.position[1], p.position[2], p.position[3],p.radius)
 end
 
 function lovr.update(dt)
   t = t + dt
 
-  -- planet.position = planet.position + dt*planet.velocity
-
-  planet = EF_update(planet,sun,dt)
-  planet = check_bounce(planet)
+  p:update(dt)
+  f:update(dt)
 end
 
 
@@ -97,16 +82,4 @@ function check_bounce(body)
   newBody.mass = mass
   return newBody
 
-end
-
--- Helper methods for vectors
-metavector = {}
-function metavector.__add(v1,v2)
-  res = {v1[1]+v2[1], v1[2]+v2[2], v1[3]+v2[3]}
-  return setmetatable(res, metavector)
-end
-
-function metavector.__mul(c,v)
-  res = {c*v[1], c*v[2], c*v[3]}
-  return setmetatable(res, metavector)
 end
