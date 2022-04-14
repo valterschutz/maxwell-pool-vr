@@ -1,3 +1,5 @@
+local helper = require "helper"
+
 local ElectricCharge = {_TYPE='module', _NAME='ElectricCharge', _VERSION='0.3.3.20111212'}
 
 function ElectricCharge:new(pos, v, a, Q)
@@ -12,6 +14,8 @@ function ElectricCharge:getField(x)
 end
 
 function ElectricCharge:update(dt)
+  helper.check_bounce(self)
+
   self.velocity = self.velocity + dt*self.acceleration
   self.position = self.position + dt*self.velocity
 end

@@ -2,6 +2,7 @@ local complex = require "complex"
 local matrix = require "matrix"
 local ElectricCharge = require "fieldobj"
 local Particle = require "particle"
+local helper = require "helper"
 
 function lovr.load()
   WALL_THICKNESS = 0.01
@@ -10,7 +11,7 @@ function lovr.load()
 
   f = ElectricCharge:new(matrix{0,0,0}, matrix{0,0,0}, matrix{0,0,0}, 1)
 
-  p = Particle:new(matrix{ORBITAL_RADIUS,0,0}, matrix{0,0,0},matrix{0.1,0,0}, 1)
+  p = Particle:new(matrix{ORBITAL_RADIUS,0,0}, matrix{0,0.2,0},matrix{0,0,0}, 1)
 
   t = 0
 end
@@ -24,12 +25,12 @@ function lovr.draw()
 
   -- Draw sun
   lovr.graphics.setColor(1,0,0)
-  lovr.graphics.sphere(f.position[1], f.position[2], f.position[3], f.radius)
+  lovr.graphics.sphere(f.position:getelement(1,1), f.position:getelement(2,1), f.position:getelement(3,1), f.radius)
 
   -- Draw planet
   lovr.graphics.setColor(0,0,1)
   -- lovr.graphics.sphere(planet.position, planet.radius)
-  lovr.graphics.sphere(p.position[1], p.position[2], p.position[3],p.radius)
+  lovr.graphics.sphere(p.position:getelement(1,1), p.position:getelement(2,1), p.position:getelement(3,1), p.radius)
 end
 
 function lovr.update(dt)
@@ -37,6 +38,7 @@ function lovr.update(dt)
 
   p:update(dt)
   f:update(dt)
+
 end
 
 
@@ -59,27 +61,3 @@ function EF_update(particle,field_obj,dt)
   return newParticle
 end
 
-function check_bounce(body)
-  local x,y,z = body.position[1], body.position[2], body.position[3]
-  local vx,vy,vz = body.velocity[1], body.velocity[2], body.velocity[3]
-  local radius = body.radius
-  local mass = body.mass
-
-  if (x+radius > 0.5 and vx > 0) or (x-radius < -0.5 and vx < 0) then
-    vx = -vx
-  elseif (y+radius > 0.5 and vy > 0) or (y-radius < -0.5 and vy < 0) then
-    vy = -vy
-  elseif (z+radius > 0.5 and vz > 0) or (z-radius < -0.5 and vz < 0) then
-    vz = -vz
-  end
-
-  local newBody = {}
-  newBody.position = {x,y,z}
-  setmetatable(newBody.position, metavector)
-  newBody.velocity = {vx,vy,vz}
-  setmetatable(newBody.velocity, metavector)
-  newBody.radius = radius
-  newBody.mass = mass
-  return newBody
-
-end
