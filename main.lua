@@ -9,8 +9,8 @@ function lovr.load()
   ORBITAL_RADIUS = 0.3
   ORBITAL_PERIOD = 5
 
-  f = ElectricCharge:new(matrix{0,0,0}, matrix{0,0,0}, matrix{0,0,0}, 1)
-  p = Particle:new(matrix{ORBITAL_RADIUS,0,0}, matrix{0,0.2,0},matrix{0,0,0}, 1)
+  f = ElectricCharge:new(matrix{0,0,0}, matrix{0,0,0}, matrix{0,0,0}, 1e-11)
+  p = Particle:new(matrix{ORBITAL_RADIUS,0,0}, matrix{0,0,0},matrix{0,0,0}, 1000, f)
 
   t = 0
 end

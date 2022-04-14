@@ -1,4 +1,6 @@
 local helper = require "helper"
+local matrix = require "matrix"
+local complex = require "complex"
 
 local ElectricCharge = {_TYPE='module', _NAME='ElectricCharge', _VERSION='0.3.3.20111212'}
 
@@ -8,9 +10,12 @@ function ElectricCharge:new(pos, v, a, Q)
   return setmetatable(newObj, self)
 end
 
-function ElectricCharge:getField(x)
+function ElectricCharge:getfield(x)
   -- x is a position where the field is to be calculated
-  local K = 8.988*1e9  -- Coulomb's constant
+  local y = self.position
+  local eps_0 = 8.8541878128*1e-12
+  local E = self.charge / (4*math.pi*eps_0) * (x-y)/matrix.scalar(x-y,x-y)^(3/2)
+  return helper.vectortomultivector(eps_0^(1/2)*E)
 end
 
 function ElectricCharge:update(dt)

@@ -1,4 +1,6 @@
 local helper = require "helper"
+local matrix = require "matrix"
+local complex = require "complex"
 
 Particle = {}
 
@@ -10,6 +12,10 @@ end
 
 function Particle:update(dt)
   helper.check_bounce(self)
+
+  local field = helper.multivectortovector(self.fieldobject:getfield(self.position))
+  local force = field*self.charge
+  self.acceleration = force/self.mass
   -- Euler forward
   self.velocity = self.velocity + dt*self.acceleration
   self.position = self.position + dt*self.velocity
