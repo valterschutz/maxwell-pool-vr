@@ -10,6 +10,7 @@ function FieldObject:new(variant,interactive)
   -- VR is a boolean
   local newObj = {variant = variant, interactive = interactive}
   if variant == "charge" then
+    NPARTICLES = 100
     newObj.position = matrix{0,0,0}
     if interactive then
       newObj.velocity = matrix{0,0,0}
@@ -73,10 +74,8 @@ function FieldObject:getparticles()
       local particle = Particle:new(pos, v, self)
       table.insert(particles,particle)
       return particles
-
     end
   end
-
 end
 
 function FieldObject:getfield(x)

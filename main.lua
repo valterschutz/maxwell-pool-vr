@@ -70,7 +70,6 @@ end
 
 
 function lovr.load()
-  NPARTICLES = 100
   eps_0 = 8.8541878128*1e-12
 
   -- sets window opacity, resolution and title
@@ -84,7 +83,8 @@ function lovr.load()
   shader:send('specularStrength', 0.1)
   shader:send('metallic', 24)
 
-  f = FieldObject:new('current', false)
+  -- Change this
+  f = FieldObject:new('charge', false)
 
   particles = f:getparticles()
 
