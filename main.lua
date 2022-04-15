@@ -84,7 +84,7 @@ function lovr.load()
     shader:send('specularStrength', 0.1)
     shader:send('metallic', 24)
 
-  f = FieldObject:new('charge')
+  f = FieldObject:new('current')
 
   particles = f:getparticles()
 

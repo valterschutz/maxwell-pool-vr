@@ -21,16 +21,17 @@ function FieldObject:new(variant)
     -- Position meaning intersection in xy-plane
     newObj.position = matrix{0,0,0}
     newObj.velocity = matrix{0,0,0}
-    newObj.current = 4e10
-    newObj.radius = 0.02
+    -- newObj.current = 4e10
+    newObj.current = 4e13
+    -- newObj.radius = 0.0
   end
     self.__index = self
     return setmetatable(newObj, self)
 end
 
 function FieldObject:getparticles()
+  local particles = {}
   if self.variant == 'charge' then
-    local particles = {}
     local r = 0.3
     for k=1,NPARTICLES do
       -- local theta = lovr.math.random() * math.pi
@@ -39,12 +40,17 @@ function FieldObject:getparticles()
       local y = r*math.sin(phi)
       -- local z = r*math.cos(theta)
       local pos = matrix{x,y,0}
-      local particle = Particle:new(pos, matrix{0,0,0}, f)
+      local particle = Particle:new(pos, matrix{0,0,0}, self)
       table.insert(particles,particle)
     end
     return particles
   elseif self.variant == 'edipole' then
   elseif self.variant == 'current' then
+    local pos = matrix{0.2,0,0}
+    local v = matrix{0,0,0.2}
+    local particle = Particle:new(pos, v, self)
+    table.insert(particles,particle)
+    return particles
   end
 
 end
@@ -78,9 +84,9 @@ function FieldObject:getfield(x)
     local F = math.sqrt(mu_0)*I/(2*math.pi)*outerproduct(e3,xp-y)/((xp-y)^2):getelement(1,1)
 
     -- If the current moves we get another contributing term
-    R = y - xp;
-    vcurrent = helper.vectortomultivector(self.velocity);
-    F = F + math.sqrt(eps_0)*(mu_0*I)/(4*math.pi) * (vcurrent * R + R * vcurrent)/(R^2):getelement(1,1) * e3;
+    -- R = y - xp;
+    -- vcurrent = helper.vectortomultivector(self.velocity);
+    -- F = F + math.sqrt(eps_0)*(mu_0*I)/(4*math.pi) * (vcurrent * R + R * vcurrent)/(R^2):getelement(1,1) * e3;
     return F
   end
 end
