@@ -1,15 +1,36 @@
-local complex = require "complex"
-local matrix = require "matrix"
-local ElectricCharge = require "fieldobj"
-local Particle = require "particle"
-local helper = require "helper"
+complex = require "complex"
+matrix = require "matrix"
+FieldObject = require "fieldobj"
+Particle = require "particle"
+helper = require "helper"
+lovr.window = require "lovr-window"
+
+function lovr.conf(t)
+  -- additional window parameters
+  t.window.fullscreentype = "desktop"	-- Choose between "desktop" fullscreen or "exclusive" fullscreen mode (string)
+  t.window.x = nil			-- The x-coordinate of the window's position in the specified display (number)
+  t.window.y = nil			-- The y-coordinate of the window's position in the specified display (number)
+  t.window.minwidth = 1			-- Minimum window width if the window is resizable (number)
+  t.window.minheight = 1			-- Minimum window height if the window is resizable (number)
+  t.window.display = 1			-- Index of the monitor to show the window in (number)
+  t.window.centered = false		-- Align window on the center of the monitor (boolean)
+  t.window.topmost = false		-- Show window on top (boolean)
+  t.window.borderless = false		-- Remove all border visuals from the window (boolean)
+  t.window.resizable = false		-- Let the window be user-resizable (boolean)
+  t.window.opacity = 1			-- Window opacity value (number)
+
+  conf = t.window
+end
+
 
 function lovr.load()
   PARTICLE_MASS = 1e-3
   PARTICLE_CHARGE = 1e-8
-  FIELD_OBJECT_CHARGE = 1e-6
   NPARTICLES = 100
   eps_0 = 8.8541878128*1e-12
+
+  -- sets window opacity, resolution and title
+	lovr.window.setMode(1280, 720, {title = "Hello, Window!", resizable = true, opacity = 1})
 
   -- set up shader
     defaultVertex = [[
@@ -61,20 +82,20 @@ function lovr.load()
     -- Set default shader values
     shader:send('liteColor', {1.0, 1.0, 1.0, 1.0})
     shader:send('ambience', {0.5, 0.5, 0.5, 1.0})
-    shader:send('specularStrength', 0.5)
-    shader:send('metallic', 32.0)
+    shader:send('specularStrength', 0.1)
+    shader:send('metallic', 24)
 
-  f = ElectricCharge:new(matrix{0,0,0}, matrix{0,0,0}, matrix{0,0,0}, FIELD_OBJECT_CHARGE)
+  f = FieldObject:new('charge')
 
   particles = {}
   r = 0.3
   for k=1,NPARTICLES do
-    local theta = lovr.math.random() * math.pi
+    -- local theta = lovr.math.random() * math.pi
     local phi = lovr.math.random() * 2*math.pi
-    local x = r*math.sin(theta)*math.cos(phi)
-    local y = r*math.sin(theta)*math.sin(phi)
-    local z = r*math.cos(theta)
-    local pos = matrix{x,y,z}
+    local x = r*math.cos(phi)
+    local y = r*math.sin(phi)
+    -- local z = r*math.cos(theta)
+    local pos = matrix{x,y,0}
     local particle = Particle:new(pos, matrix{0,0,0}, PARTICLE_CHARGE, PARTICLE_MASS, f)
     table.insert(particles,particle)
   end
@@ -104,6 +125,7 @@ function lovr.draw()
   for key,particle in pairs(particles) do
     lovr.graphics.sphere(particle.position:getelement(1,1), particle.position:getelement(2,1), particle.position:getelement(3,1), particle.radius)
   end
+
 end
 
 function lovr.update(dt)

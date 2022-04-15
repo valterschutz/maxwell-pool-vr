@@ -26,7 +26,7 @@ function R.vectortomultivector(vector)
   sigma_2 = matrix{{0,"-i"},{"i",0}}:replace(complex)
   sigma_3 = matrix{{1,0},{0,-1}}
 
-  return sigma_1 * vector:getelement(1,1) + sigma_2 * vector:getelement(2,1) + sigma_3 * vector:getelement(3,1);
+  return sigma_1 * vector:getelement(1,1) + sigma_2 * vector:getelement(2,1) + sigma_3 * vector:getelement(3,1)
 end
 
 function R.multivectortovector(multivector)

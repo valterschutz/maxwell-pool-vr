@@ -3,6 +3,7 @@ local matrix = require "matrix"
 local complex = require "complex"
 
 eps_0 = 8.8541878128*1e-12
+mu_0 = 1.25663706212*1e-6
 
 Particle = {}
 
@@ -42,15 +43,14 @@ function Particle:update(dt)
 end
 
 function Particle:D(S)
-  -- print("In D(S)")
-  -- print((S^'T'):tostring())
-
   -- Position and velocity of particle
   local x,y,z = S:getelement(1,1), S:getelement(2,1), S:getelement(3,1)
   local vx,vy,vz = S:getelement(4,1), S:getelement(5,1), S:getelement(6,1)
 
-  local field = (eps_0)^(-1/2)*helper.multivectortovector(self.fieldobject:getfield(matrix{x,y,z}))
-  local force = field*self.charge
+  local F = self.fieldobject:getfield(matrix{x,y,z})
+  local Fb = F:conjtranspose()
+  local v_multi = helper.vectortomultivector(matrix{vx,vy,vz})
+  local force = helper.multivectortovector(self.charge/2*((F+Fb)/math.sqrt(eps_0)+math.sqrt(mu_0)/2*((F-Fb)*v_multi-v_multi*(F-Fb))))
   local acceleration = force/self.mass
 
   local v = matrix{vx,vy,vz}

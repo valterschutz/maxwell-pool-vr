@@ -115,6 +115,7 @@ LICENSE
 --////////////
 
 local matrix = {_TYPE='module', _NAME='matrix', _VERSION='0.2.11.20120416'}
+complex = require "complex"
 
 -- access to the metatable we set at the end of the file
 local matrix_meta = {}
@@ -759,6 +760,21 @@ function matrix.transpose( m1 )
 		mtx[i] = {}
 		for j = 1,#m1 do
 			mtx[i][j] = docopy( m1[j][i] )
+		end
+	end
+	return setmetatable( mtx, matrix_meta )
+end
+
+--// matrix.conjtranspose ( m1 )
+-- Conjugate transpose of a matrix
+-- switch rows and columns and swap sign of imaginary parts
+function matrix.conjtranspose( m1 )
+	local docopy = matrix.type( m1 ) == "number" and num_copy or t_copy
+	local mtx = {}
+	for i = 1,#m1[1] do
+		mtx[i] = {}
+		for j = 1,#m1 do
+			mtx[i][j] = docopy( complex.conjugate(m1[j][i]) )
 		end
 	end
 	return setmetatable( mtx, matrix_meta )
