@@ -3,27 +3,41 @@ local matrix = require "matrix"
 local complex = require "complex"
 local Particle = require 'particle'
 
-local FieldObject = {_TYPE='module', _NAME='ElectricCharge'}
+local FieldObject = {_TYPE='module', _NAME='FieldObject'}
 
-function FieldObject:new(variant)
-  local newObj = {variant = variant}
+function FieldObject:new(variant,interactive)
+  -- Variant can be: 'charge', 'edipole' or 'current'
+  -- VR is a boolean
+  local newObj = {variant = variant, interactive = interactive}
   if variant == "charge" then
     newObj.position = matrix{0,0,0}
-    newObj.velocity = matrix{0,0,0}
+    if interactive then
+      newObj.velocity = matrix{0,0,0}
+    else
+      newObj.velocity = matrix{0.1,0,0}
+    end
     newObj.charge = 1e-6
     newObj.radius = 0.02
   elseif variant == "edipole" then
     newObj.position = matrix{0,0,0}
-    newObj.velocity = matrix{0,0,0}
+    if interactive then
+      newObj.velocity = matrix{0,0,0}
+    else
+      newObj.velocity = matrix{0.1,0,0}
+    end
     newObj.dipolemoment = matrix{0,0,1}*0.1*1e-5
     newObj.radius = 0.02
   elseif variant == "current" then
     -- Position meaning intersection in xy-plane
     newObj.position = matrix{0,0,0}
-    newObj.velocity = matrix{0,0,0}
+    if interactive then
+      newObj.velocity = matrix{0,0,0}
+    else
+      newObj.velocity = matrix{0.1,0,0}
+    end
     -- newObj.current = 4e10
     newObj.current = 4e13
-    -- newObj.radius = 0.0
+    newObj.radius = 0.01
   end
     self.__index = self
     return setmetatable(newObj, self)
@@ -84,30 +98,32 @@ function FieldObject:getfield(x)
     local F = math.sqrt(mu_0)*I/(2*math.pi)*outerproduct(e3,xp-y)/((xp-y)^2):getelement(1,1)
 
     -- If the current moves we get another contributing term
-    -- R = y - xp;
-    -- vcurrent = helper.vectortomultivector(self.velocity);
-    -- F = F + math.sqrt(eps_0)*(mu_0*I)/(4*math.pi) * (vcurrent * R + R * vcurrent)/(R^2):getelement(1,1) * e3;
+    R = y - xp;
+    vcurrent = helper.vectortomultivector(self.velocity);
+    F = F + math.sqrt(eps_0)*(mu_0*I)/(4*math.pi) * (vcurrent * R + R * vcurrent)/(R^2):getelement(1,1) * e3;
     return F
   end
 end
 
 function FieldObject:update(dt)
-  -- helper.checkbounce(self)
-  if self.variant == 'charge' or self.variant == 'edipole' then
-    local down = lovr.headset.isDown("right", "grip")
-    if down then
-      local x, y, z = lovr.headset.getPosition("right")
-      self.position = matrix{x,y,z}
-    end
-  elseif self.variant == 'current' then
-    local down = lovr.headset.isDown("right", "grip")
-    if down then
-      local x, y, _ = lovr.headset.getPosition("right")
-      self.position = matrix{x,y}
+  if not self.interactive then
+    self.position = self.position + dt*self.velocity
+    helper.checkbounce(self)
+  else
+    if self.variant == 'charge' or self.variant == 'edipole' then
+      local down = lovr.headset.isDown("right", "grip")
+      if down then
+        local x, y, z = lovr.headset.getPosition("right")
+        self.position = matrix{x,y,z}
+      end
+    elseif self.variant == 'current' then
+      local down = lovr.headset.isDown("right", "grip")
+      if down then
+        local x, y, _ = lovr.headset.getPosition("right")
+        self.position = matrix{x,y}
+      end
     end
   end
-  -- self.velocity = self.velocity + dt*self.acceleration
-  -- self.position = self.position + dt*self.velocity
 end
 
 function FieldObject:draw()
@@ -116,7 +132,7 @@ function FieldObject:draw()
     lovr.graphics.sphere(f.position:getelement(1,1), f.position:getelement(2,1), f.position:getelement(3,1), f.radius)
   elseif self.variant == 'current' then
     x,y = self.position:getelement(1,1), self.position:getelement(2,1)
-    lovr.graphics.line(x,y,-0.5,x,y,0.5)
+    lovr.graphics.cylinder(x,y,0,1,0,0,0,0,self.radius,self.radius)
   end
 end
 

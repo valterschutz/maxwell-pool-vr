@@ -76,15 +76,15 @@ function lovr.load()
   -- sets window opacity, resolution and title
 	lovr.window.setMode(1280, 720, {title = "Hello, Window!", resizable = true, opacity = 1})
 
-    shader = lovr.graphics.newShader(defaultVertex, defaultFragment, {})
-    
-    -- Set default shader values
-    shader:send('liteColor', {1.0, 1.0, 1.0, 1.0})
-    shader:send('ambience', {0.5, 0.5, 0.5, 1.0})
-    shader:send('specularStrength', 0.1)
-    shader:send('metallic', 24)
+  shader = lovr.graphics.newShader(defaultVertex, defaultFragment, {})
 
-  f = FieldObject:new('current')
+  -- Set default shader values
+  shader:send('liteColor', {1.0, 1.0, 1.0, 1.0})
+  shader:send('ambience', {0.5, 0.5, 0.5, 1.0})
+  shader:send('specularStrength', 0.1)
+  shader:send('metallic', 24)
+
+  f = FieldObject:new('current', false)
 
   particles = f:getparticles()
 
