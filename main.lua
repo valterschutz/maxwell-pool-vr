@@ -45,7 +45,7 @@ function lovr.update(dt)
   t = t + dt
 
   f:update(dt)
-  p:update(dt)
+  p:RK_update(dt)
 end
 
 
