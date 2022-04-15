@@ -29,10 +29,11 @@ function FieldObject:new(variant,interactive)
     newObj.radius = 0.02
   elseif variant == "current" then
     -- Position meaning intersection in xy-plane
-    newObj.position = matrix{0,0,0}
     if interactive then
+      newObj.position = matrix{0,0,0}
       newObj.velocity = matrix{0,0,0}
     else
+      newObj.position = matrix{-0.5,0,0}
       newObj.velocity = matrix{0.1,0,0}
     end
     -- newObj.current = 4e10
@@ -60,11 +61,20 @@ function FieldObject:getparticles()
     return particles
   elseif self.variant == 'edipole' then
   elseif self.variant == 'current' then
-    local pos = matrix{0.2,0,0}
-    local v = matrix{0,0,0.2}
-    local particle = Particle:new(pos, v, self)
-    table.insert(particles,particle)
-    return particles
+    if self.interactive then
+      local pos = matrix{0.2,0,0}
+      local v = matrix{0,0,0.2}
+      local particle = Particle:new(pos, v, self)
+      table.insert(particles,particle)
+      return particles
+    else
+      local pos = matrix{-0.4,0,0}
+      local v = matrix{0.1,0,0}
+      local particle = Particle:new(pos, v, self)
+      table.insert(particles,particle)
+      return particles
+
+    end
   end
 
 end
