@@ -5,6 +5,52 @@ Particle = require "particle"
 helper = require "helper"
 lovr.window = require "lovr-window"
 
+-- set up shader
+defaultVertex = [[
+    out vec3 FragmentPos;
+    out vec3 Normal;
+
+    vec4 position(mat4 projection, mat4 transform, vec4 vertex) { 
+        Normal = lovrNormal;
+        FragmentPos = (lovrModel * vertex).xyz;
+    
+        return projection * transform * vertex;
+    }
+]]
+defaultFragment = [[
+    uniform vec4 liteColor;
+
+    uniform vec4 ambience;
+
+    in vec3 Normal;
+    in vec3 FragmentPos;
+    uniform vec3 lightPos;
+
+    uniform vec3 viewPos;
+    uniform float specularStrength;
+    uniform float metallic;
+    
+    vec4 color(vec4 graphicsColor, sampler2D image, vec2 uv) 
+    {    
+        //diffuse
+        vec3 norm = normalize(Normal);
+        vec3 lightDir = normalize(lightPos - FragmentPos);
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec4 diffuse = diff * liteColor;
+        
+        //specular
+        vec3 viewDir = normalize(viewPos - FragmentPos);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), metallic);
+        vec4 specular = specularStrength * spec * liteColor;
+        
+        vec4 baseColor = graphicsColor * texture(image, uv);            
+        //vec4 objectColor = baseColor * vertexColor;
+
+        return baseColor * (ambience + diffuse + specular);
+    }
+]]
+
 function lovr.conf(t)
   -- additional window parameters
   t.window.fullscreentype = "desktop"	-- Choose between "desktop" fullscreen or "exclusive" fullscreen mode (string)
@@ -24,59 +70,12 @@ end
 
 
 function lovr.load()
-  PARTICLE_MASS = 1e-3
-  PARTICLE_CHARGE = 1e-8
   NPARTICLES = 100
   eps_0 = 8.8541878128*1e-12
 
   -- sets window opacity, resolution and title
 	lovr.window.setMode(1280, 720, {title = "Hello, Window!", resizable = true, opacity = 1})
 
-  -- set up shader
-    defaultVertex = [[
-        out vec3 FragmentPos;
-        out vec3 Normal;
-
-        vec4 position(mat4 projection, mat4 transform, vec4 vertex) { 
-            Normal = lovrNormal;
-            FragmentPos = (lovrModel * vertex).xyz;
-        
-            return projection * transform * vertex;
-        }
-    ]]
-    defaultFragment = [[
-        uniform vec4 liteColor;
-
-        uniform vec4 ambience;
-    
-        in vec3 Normal;
-        in vec3 FragmentPos;
-        uniform vec3 lightPos;
-
-        uniform vec3 viewPos;
-        uniform float specularStrength;
-        uniform float metallic;
-        
-        vec4 color(vec4 graphicsColor, sampler2D image, vec2 uv) 
-        {    
-            //diffuse
-            vec3 norm = normalize(Normal);
-            vec3 lightDir = normalize(lightPos - FragmentPos);
-            float diff = max(dot(norm, lightDir), 0.0);
-            vec4 diffuse = diff * liteColor;
-            
-            //specular
-            vec3 viewDir = normalize(viewPos - FragmentPos);
-            vec3 reflectDir = reflect(-lightDir, norm);
-            float spec = pow(max(dot(viewDir, reflectDir), 0.0), metallic);
-            vec4 specular = specularStrength * spec * liteColor;
-            
-            vec4 baseColor = graphicsColor * texture(image, uv);            
-            //vec4 objectColor = baseColor * vertexColor;
-
-            return baseColor * (ambience + diffuse + specular);
-        }
-    ]]
     shader = lovr.graphics.newShader(defaultVertex, defaultFragment, {})
     
     -- Set default shader values
@@ -87,18 +86,7 @@ function lovr.load()
 
   f = FieldObject:new('charge')
 
-  particles = {}
-  r = 0.3
-  for k=1,NPARTICLES do
-    -- local theta = lovr.math.random() * math.pi
-    local phi = lovr.math.random() * 2*math.pi
-    local x = r*math.cos(phi)
-    local y = r*math.sin(phi)
-    -- local z = r*math.cos(theta)
-    local pos = matrix{x,y,0}
-    local particle = Particle:new(pos, matrix{0,0,0}, PARTICLE_CHARGE, PARTICLE_MASS, f)
-    table.insert(particles,particle)
-  end
+  particles = f:getparticles()
 
   t = 0
 end
@@ -117,13 +105,12 @@ function lovr.draw()
   lovr.graphics.setShader(shader)
 
   -- Draw field object
-  lovr.graphics.setColor(1,0,0)
-  lovr.graphics.sphere(f.position:getelement(1,1), f.position:getelement(2,1), f.position:getelement(3,1), f.radius)
+  f:draw()
 
   -- Draw particles
   lovr.graphics.setColor(0,0,1)
   for key,particle in pairs(particles) do
-    lovr.graphics.sphere(particle.position:getelement(1,1), particle.position:getelement(2,1), particle.position:getelement(3,1), particle.radius)
+    particle:draw()
   end
 
 end

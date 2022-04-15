@@ -7,8 +7,8 @@ mu_0 = 1.25663706212*1e-6
 
 Particle = {}
 
-function Particle:new(pos, v, Q, m, fieldobj)
-  local newObj = {position = pos, velocity = v, charge = Q, radius = 0.01, mass = m, fieldobject = fieldobj}
+function Particle:new(pos, v, fieldobj)
+  local newObj = {position = pos, velocity = v, charge = 1e-10, radius = 0.01, mass = 1e-3, fieldobject = fieldobj}
   self.__index = self
   return setmetatable(newObj, self)
 end
@@ -55,6 +55,10 @@ function Particle:D(S)
 
   local v = matrix{vx,vy,vz}
   return matrix.concatv(v,acceleration)
+end
+
+function Particle:draw()
+    lovr.graphics.sphere(self.position:getelement(1,1), self.position:getelement(2,1), self.position:getelement(3,1), self.radius)
 end
 
 return Particle

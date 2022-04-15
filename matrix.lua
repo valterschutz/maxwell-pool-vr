@@ -46,6 +46,7 @@ API
 	matrix.columns
 	matrix.concath
 	matrix.concatv
+	matrix.conjtranspose
 	matrix.copy
 	matrix.cross
 	matrix.det
@@ -53,6 +54,7 @@ API
 	matrix.divnum
 	matrix.dogauss
 	matrix.elementstostring
+	matrix.elempow
 	matrix.getelement
 	matrix.gsub
 	matrix.invert
@@ -306,6 +308,7 @@ function matrix.pow( m1, num )
 	end
 	return mtx
 end
+
 
 local function number_norm2(x)
   return x * x
@@ -1056,6 +1059,18 @@ function matrix.solve( m1 )
 		mtx[i] = {}
 		for j = 1,#m1[1] do
 			mtx[i][j] = tonumber( loadstring( "return "..m1[i][j][1] )() )
+		end
+	end
+	return setmetatable( mtx, matrix_meta )
+end
+
+function matrix.elempow(m1, num)
+	local docopy = matrix.type( m1 ) == "number" and num_copy or t_copy
+	local mtx = {}
+	for i = 1,#m1[1] do
+		mtx[i] = {}
+		for j = 1,#m1 do
+			mtx[i][j] = docopy( m1[i][j]^num )
 		end
 	end
 	return setmetatable( mtx, matrix_meta )
