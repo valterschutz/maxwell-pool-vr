@@ -2,23 +2,25 @@ local helper = require "helper"
 local matrix = require "matrix"
 local complex = require "complex"
 
+eps_0 = 8.8541878128*1e-12
+
 Particle = {}
 
-function Particle:new(pos, v, a, Q, fieldobj)
-  local newObj = {position = pos, velocity = v, acceleration = a, charge = Q, radius = 0.01, mass = 0.001, fieldobject = fieldobj}
+function Particle:new(pos, v, a, Q, m, fieldobj)
+  local newObj = {position = pos, velocity = v, acceleration = a, charge = Q, radius = 0.01, mass = m, fieldobject = fieldobj}
   self.__index = self
   return setmetatable(newObj, self)
 end
 
 function Particle:update(dt)
-  helper.check_bounce(self)
-
-  local field = helper.multivectortovector(self.fieldobject:getfield(self.position))
+  local field = (eps_0)^(-1/2)*helper.multivectortovector(self.fieldobject:getfield(self.position))
   local force = field*self.charge
   self.acceleration = force/self.mass
   -- Euler forward
   self.velocity = self.velocity + dt*self.acceleration
   self.position = self.position + dt*self.velocity
+
+  helper.check_bounce(self)
 end
 
 

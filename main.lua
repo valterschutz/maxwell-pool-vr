@@ -7,10 +7,16 @@ local helper = require "helper"
 function lovr.load()
   WALL_THICKNESS = 0.01
   ORBITAL_RADIUS = 0.3
-  ORBITAL_PERIOD = 5
+  ORBITAL_PERIOD = 1
+  PARTICLE_MASS = 1
+  FIELD_OBJECT_CHARGE = 1
+  eps_0 = 8.8541878128*1e-12
 
-  f = ElectricCharge:new(matrix{0,0,0}, matrix{0,0,0}, matrix{0,0,0}, 1e-11)
-  p = Particle:new(matrix{ORBITAL_RADIUS,0,0}, matrix{0,0,0},matrix{0,0,0}, 1000, f)
+  f = ElectricCharge:new(matrix{0,0,0}, matrix{0,0,0}, matrix{0,0,0}, FIELD_OBJECT_CHARGE)
+
+  vy = 2*math.pi*ORBITAL_RADIUS/ORBITAL_PERIOD;
+  q = -PARTICLE_MASS*16*math.pi^3*eps_0*ORBITAL_RADIUS^3/(FIELD_OBJECT_CHARGE*ORBITAL_PERIOD^2);
+  p = Particle:new(matrix{ORBITAL_RADIUS,0,0}, matrix{0,vy,0},matrix{0,0,0}, q, PARTICLE_MASS, f)
 
   t = 0
 end
@@ -29,13 +35,17 @@ function lovr.draw()
   -- Draw particle
   lovr.graphics.setColor(0,0,1)
   lovr.graphics.sphere(p.position:getelement(1,1), p.position:getelement(2,1), p.position:getelement(3,1), p.radius)
+
+  -- Draw circle of trajectory
+  lovr.graphics.setColor(0.5,1,0.2)
+  lovr.graphics.circle("line", 0, 0, 0, ORBITAL_RADIUS, 0, 0, 0, 0)
 end
 
 function lovr.update(dt)
   t = t + dt
 
-  p:update(dt)
   f:update(dt)
+  p:update(dt)
 end
 
 
