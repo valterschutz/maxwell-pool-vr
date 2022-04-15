@@ -3,7 +3,7 @@ local complex = require "complex"
 
 local R = {}
 
-function R.check_bounce(body)
+function R.checkbounce(body)
   -- Make sure body has attributes [position, velocity, radius]
   local x,y,z = body.position:getelement(1,1), body.position:getelement(2,1), body.position:getelement(3,1)
   local vx,vy,vz = body.velocity:getelement(1,1), body.velocity:getelement(2,1), body.velocity:getelement(3,1)

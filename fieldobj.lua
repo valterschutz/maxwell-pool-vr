@@ -19,7 +19,7 @@ function ElectricCharge:getfield(x)
 end
 
 function ElectricCharge:update(dt)
-  helper.check_bounce(self)
+  helper.checkbounce(self)
 
   self.velocity = self.velocity + dt*self.acceleration
   self.position = self.position + dt*self.velocity
