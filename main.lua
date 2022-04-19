@@ -26,14 +26,16 @@ function lovr.load()
   -- lovr.graphics.setBlendMode()
 
   -- Change this
-  f = FieldObject:new('charge', false)
+  f = FieldObject:new('charge', true)
 
   particles = f:getparticles()
 
   t = 0
+
 end
 
 function lovr.draw()
+  -- lovr.graphics.translate(0,1,0)
   -- Reset shader
   -- lovr.graphics.setShader()
 
