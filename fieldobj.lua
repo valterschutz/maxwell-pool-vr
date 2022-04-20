@@ -9,8 +9,8 @@ function FieldObject:new(variant,interactive)
   -- Variant can be: 'charge', 'edipole' or 'current'
   -- VR is a boolean
   local newObj = {variant = variant, interactive = interactive}
+  NPARTICLES = 100
   if variant == "charge" then
-    NPARTICLES = 100
     newObj.position = matrix{0,0,0}
     if interactive then
       newObj.velocity = matrix{0,0,0}
@@ -26,7 +26,7 @@ function FieldObject:new(variant,interactive)
     else
       newObj.velocity = matrix{0.1,0,0}
     end
-    newObj.dipolemoment = matrix{0,0,1}*0.1*1e-5
+    newObj.dipolemoment = matrix{0,0,1}*1e-7
     newObj.radius = 0.02
   elseif variant == "current" then
     -- Position meaning intersection in xy-plane
@@ -48,34 +48,57 @@ end
 function FieldObject:getparticles()
   local particles = {}
   if self.variant == 'charge' then
-    local r = 0.3
-    for k=1,NPARTICLES do
-      -- local theta = lovr.math.random() * math.pi
-      local phi = lovr.math.random() * 2*math.pi
-      local x = r*math.cos(phi)
-      local y = r*math.sin(phi)
-      -- local z = r*math.cos(theta)
-      local pos = matrix{x,y,0}
-      local particle = Particle:new(pos, matrix{0,0,0}, self)
+    if self.interactive then
+      local pos = matrix{0.2,0,0}
+      local v = matrix{0,0,0}
+      local particle = Particle:new(pos, v, self)
       table.insert(particles,particle)
+    else
+      local r = 0.3
+      for k=1,NPARTICLES do
+        -- local theta = lovr.math.random() * math.pi
+        local phi = lovr.math.random() * 2*math.pi
+        local x = r*math.cos(phi)
+        local y = r*math.sin(phi)
+        -- local z = r*math.cos(theta)
+        local pos = matrix{x,y,0}
+        local particle = Particle:new(pos, matrix{0,0,0}, self)
+        table.insert(particles,particle)
+      end
     end
-    return particles
   elseif self.variant == 'edipole' then
+    if self.interactive then
+      local pos = matrix{0.2,0,0}
+      local v = matrix{0,0,0}
+      local particle = Particle:new(pos, v, self)
+      table.insert(particles,particle)
+    else
+      local r = 0.3
+      for k=1,NPARTICLES do
+        -- local theta = lovr.math.random() * math.pi
+        local phi = lovr.math.random() * 2*math.pi
+        local x = r*math.cos(phi)
+        local y = r*math.sin(phi)
+        -- local z = r*math.cos(theta)
+        local pos = matrix{x,y,0}
+        local particle = Particle:new(pos, matrix{0,0,0}, self)
+        table.insert(particles,particle)
+      end
+    end
   elseif self.variant == 'current' then
     if self.interactive then
       local pos = matrix{0.2,0,0}
       local v = matrix{0,0,0.2}
       local particle = Particle:new(pos, v, self)
       table.insert(particles,particle)
-      return particles
     else
       local pos = matrix{-0.4,0,0}
       local v = matrix{0.1,0,0}
       local particle = Particle:new(pos, v, self)
       table.insert(particles,particle)
-      return particles
     end
   end
+  return particles
 end
 
 function FieldObject:getfield(x)
@@ -123,13 +146,13 @@ function FieldObject:update(dt)
       local down = lovr.headset.isDown("right", "grip")
       if down then
         local x, y, z = lovr.headset.getPosition("right")
-        self.position = matrix{x,y,z}
+        self.position = matrix{x,y-1,z}
       end
     elseif self.variant == 'current' then
       local down = lovr.headset.isDown("right", "grip")
       if down then
         local x, y, _ = lovr.headset.getPosition("right")
-        self.position = matrix{x,y}
+        self.position = matrix{x,y-1,0}
       end
     end
   end
@@ -137,8 +160,13 @@ end
 
 function FieldObject:draw()
   lovr.graphics.setColor(1,0,0)
-  if self.variant == 'charge' or self.variant == 'edipole' then
+  if self.variant == 'charge' then
     lovr.graphics.sphere(f.position:getelement(1,1), f.position:getelement(2,1), f.position:getelement(3,1), f.radius)
+  elseif self.variant == 'edipole' then
+    local length = 0.1
+    local radius = 0.01
+    lovr.graphics.cylinder(f.position:getelement(1,1), f.position:getelement(2,1), f.position:getelement(3,1), length, 0, 0, 0, 0, radius, radius, true, nil)
+    lovr.graphics.cylinder(f.position:getelement(1,1), f.position:getelement(2,1), f.position:getelement(3,1)+length/2, radius*2, 0, 0, 0, 0, radius*2, 0, true, nil)
   elseif self.variant == 'current' then
     x,y = self.position:getelement(1,1), self.position:getelement(2,1)
     lovr.graphics.cylinder(x,y,0,1,0,0,0,0,self.radius,self.radius)

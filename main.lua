@@ -4,38 +4,22 @@ FieldObject = require "fieldobj"
 Particle = require "particle"
 helper = require "helper"
 
-function lovr.load()
+function lovr.load(t)
+  -- t is an argument table
   eps_0 = 8.8541878128*1e-12
 
-  -- shader = lovr.graphics.newShader('standard', {
-  --   flags = {
-  --     normalMap = false,
-  --     indirectLighting = true,
-  --     occlusion = true,
-  --     emissive = false,
-  --     skipTonemap = false,
-  --     uniformScale = true
-  --   }
-  -- })
-
-  -- shader:send('lovrLightDirection', { 1, 2, 1 })
-  -- shader:send('lovrLightColor', { .9, .9, .8, 1.0 })
-  -- shader:send('lovrExposure', 2) -- 2
-
-  -- lovr.graphics.setCullingEnabled(true)
-  -- lovr.graphics.setBlendMode()
-
-  -- Change this
-  f = FieldObject:new('charge', true)
+  -- Change this, choose between 'charge', 'edipole', 'current'
+  -- Boolean determines interactive mode or not
+  local fieldobjecttype = t.restart and 'charge'
+  f = FieldObject:new(fieldobjecttype, true)
 
   particles = f:getparticles()
 
-  t = 0
-
+  -- t = 0
 end
 
 function lovr.draw()
-  -- lovr.graphics.translate(0,1,0)
+  lovr.graphics.translate(0,1,0)
   -- Reset shader
   -- lovr.graphics.setShader()
 
@@ -60,7 +44,7 @@ function lovr.draw()
 end
 
 function lovr.update(dt)
-  t = t + dt
+  -- t = t + dt
 
   -- Adjust head position (for specular)
   -- if lovr.headset then
@@ -72,5 +56,19 @@ function lovr.update(dt)
 
   for key,particle in pairs(particles) do
     particle:update(dt)
+  end
+
+  if lovr.headset.isDown('right', 'trigger') then
+    lovr.event.restart()
+  end
+end
+
+function lovr.restart()
+  if lovr.headset.isDown('right', 'a') then
+    return 'charge'
+  elseif lovr.headset.isDown('right', 'b') then
+    return 'edipole'
+  elseif lovr.headset.isDown('right', 'thumbstick') then
+    return 'current'
   end
 end
