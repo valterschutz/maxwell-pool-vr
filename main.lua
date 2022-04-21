@@ -5,13 +5,16 @@ Particle = require "particle"
 helper = require "helper"
 
 function lovr.load(t)
-  -- t is an argument table
+  -- t is a table containing restart as a key if lovr.event.restart
+  -- is called.
   eps_0 = 8.8541878128*1e-12
 
-  -- Change this, choose between 'charge', 'edipole', 'current'
-  -- Boolean determines interactive mode or not
-  local fieldobjecttype = t.restart and 'charge'
-  f = FieldObject:new(fieldobjecttype, true)
+  -- Change this. Choose between 'charge', 'edipole', 'current' as a default
+  -- field source.
+  -- Boolean determines interactive mode
+  local fieldobjecttype = t.restart or 'charge'
+  print('Field object type is ' .. fieldobjecttype)
+  f = FieldObject:new(fieldobjecttype, false)
 
   particles = f:getparticles()
 
