@@ -13,8 +13,7 @@ function lovr.load(t)
   -- field source.
   -- Boolean determines interactive mode
   local fieldobjecttype = t.restart or 'charge'
-  print('Field object type is ' .. fieldobjecttype)
-  f = FieldObject:new(fieldobjecttype, false)
+  f = FieldObject:new(fieldobjecttype, true)
 
   particles = f:getparticles()
 
@@ -67,7 +66,9 @@ function lovr.update(dt)
 end
 
 function lovr.restart()
-  if lovr.headset.isDown('right', 'a') then
+  if lovr.headset.isDown('right','a') and lovr.headset.isDown('right','b') then
+    return 'mdipole'
+  elseif lovr.headset.isDown('right', 'a') then
     return 'charge'
   elseif lovr.headset.isDown('right', 'b') then
     return 'edipole'
